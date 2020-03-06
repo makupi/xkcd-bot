@@ -30,6 +30,11 @@ class Config:
     def get_game():
         config = Config.get_config()
         return config.get('game')
+ 
+    @staticmethod
+    def get_dbl_token():
+        config = Config.get_config()
+        return config.get('dblToken')
 
     @staticmethod
     def set_prefix(prefix):

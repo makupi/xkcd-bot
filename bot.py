@@ -29,7 +29,7 @@ async def on_ready():
     await bot.change_presence(activity=Game(Config.get_game()))
 
 
-extensions = ['cogs.xkcd']
+extensions = ['cogs.xkcd', 'cogs.dblstats']
 if __name__ == '__main__':
     for ext in extensions:
         bot.load_extension(ext)
