@@ -1,4 +1,3 @@
-import discord
 from discord import Game
 from discord.ext import commands
 
@@ -8,12 +7,20 @@ Config.get_token()
 
 
 def get_prefix(_bot, message):
-    prefix = _bot.prefix
-    return commands.when_mentioned_or(prefix)(_bot, message)
+    return commands.when_mentioned(_bot, message)
 
 
 bot = commands.AutoShardedBot(command_prefix=get_prefix)
-bot.prefix = Config.get_prefix()
+bot.remove_command('help')
+
+
+@bot.command(name='help')
+async def bot_help(ctx):
+    await ctx.channel.send(f"""```
+@xkcd <id>:     Shows specific comic by id.
+@xkcd latest:   Shows latest comic.
+@xkcd random:   Shows random comic.
+@xkcd help:     Shows this message.```""")
 
 
 @bot.event
