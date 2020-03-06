@@ -32,14 +32,30 @@ class Xkcd(commands.Cog):
         embed.set_image(url=data.get('img'))
         return embed
 
-    @commands.command(name='xkcd')
-    async def xkcd(self, ctx, number: int):
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        ctx = await self.bot.get_context(message)
+        if ctx.valid or message.author.bot:
+            return
+        if self.bot.user in message.mentions:
+            _id = message.content.split()[1]
+            try:
+                _id = int(_id)
+            except ValueError:
+                return
+            max_xkcd = await self.get_max_xkcd()
+            if 1 <= _id <= max_xkcd:
+                await self.xkcd(message.channel, _id)
+            else:
+                await message.channel.send(f"❌ xkcd #{_id} doesn't exist. Please pick between 1-{max_xkcd}.")
+
+    async def xkcd(self, channel, number: int):
         data = await self.get_xkcd(number)
         if data is None:
-            await ctx.channel.send(f'❌ xkcd #{number} not found. Please try another one.')
+            await channel.send(f'❌ xkcd #{number} not found. Please try another one.')
             return
         embed = self.generate_embed(data)
-        await ctx.channel.send(embed=embed)
+        await channel.send(embed=embed)
 
     @commands.command(name='latest')
     async def latest_xkcd(self, ctx):
@@ -49,12 +65,15 @@ class Xkcd(commands.Cog):
 
     @commands.command(name='random')
     async def random_xkcd(self, ctx):
-        data = await self.get_latest()
-        latest_num = data.get('num')
-        _id = random.randint(1, latest_num)
+        max_xkcd = await self.get_max_xkcd()
+        _id = random.randint(1, max_xkcd)
         data = await self.get_xkcd(_id)
         embed = self.generate_embed(data)
         await ctx.channel.send(embed=embed)
+
+    async def get_max_xkcd(self):
+        data = await self.get_latest()
+        return data.get('num')
 
 
 def setup(bot):
