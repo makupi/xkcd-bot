@@ -12,7 +12,10 @@ class Xkcd(commands.Cog):
     @staticmethod
     async def fetch(session, url):
         async with session.get(url) as response:
-            return await response.json()
+            try:
+                return await response.json()
+            except aiohttp.ContentTypeError:
+                return None
 
     async def get_xkcd(self, _id: int):
         async with aiohttp.ClientSession() as session:
@@ -22,7 +25,8 @@ class Xkcd(commands.Cog):
         async with aiohttp.ClientSession() as session:
             return await self.fetch(session, f'http://xkcd.com/info.0.json')
 
-    def generate_embed(self, data):
+    @staticmethod
+    def generate_embed(data):
         title = f'xkcd #{data.get("num")} - {data.get("title")}'
         embed = discord.Embed(title=title, url=f'https://xkcd.com/{data.get("num")}')
         embed.set_image(url=data.get('img'))
@@ -31,6 +35,9 @@ class Xkcd(commands.Cog):
     @commands.command(name='xkcd')
     async def xkcd(self, ctx, number: int):
         data = await self.get_xkcd(number)
+        if data is None:
+            await ctx.channel.send(f'❌ xkcd #{number} not found. Please try another one.')
+            return
         embed = self.generate_embed(data)
         await ctx.channel.send(embed=embed)
 

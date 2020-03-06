@@ -9,5 +9,3 @@ verify_ssl = true
 discord-py = "*"
 aiohttp = "*"
 
-[requires]
-python_version = "3.8"
