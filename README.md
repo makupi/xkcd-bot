@@ -1,7 +1,7 @@
 # xkcd-bot
 Simple Discord bot for xkcd comics.     
 
-[![Discord Bots](https://discordbots.org/api/widget/685539272379727991.svg)](https://discordbots.org/bot/685539272379727991)
+[![Discord Bots](https://top.gg/api/widget/685539272379727991.svg)](https://top.gg/bot/685539272379727991)
 
 
 ## Commands
