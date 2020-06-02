@@ -1,7 +1,6 @@
 import sys
 import traceback
 
-import aiohttp
 from discord.ext import commands
 
 from utils import Config
@@ -16,8 +15,8 @@ class DBLStats(commands.Cog):
         headers = {"Authorization": self.token}
         url = f"https://discordbots.org/api/bots/{str(self.bot.user.id)}/stats"
         payload = {"server_count": len(self.bot.guilds)}
-        async with aiohttp.ClientSession() as session:
-            await session.post(url, data=payload, headers=headers)
+
+        await self.bot.aiohttp.post(url, data=payload, headers=headers)
 
     @commands.Cog.listener()
     async def on_ready(self):

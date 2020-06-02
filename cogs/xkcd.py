@@ -11,25 +11,23 @@ class Xkcd(commands.Cog):
 
     @staticmethod
     async def fetch(session, url):
-        async with session.get(url) as response:
-            try:
-                return await response.json()
-            except aiohttp.ContentTypeError:
-                return None
+        response = await session.get(url)
+        try:
+            return await response.json()
+        except aiohttp.ContentTypeError:
+            return None
 
     async def get_xkcd(self, _id: int):
-        async with aiohttp.ClientSession() as session:
-            return await self.fetch(session, f'http://xkcd.com/{_id}/info.0.json')
+        return await self.fetch(self.bot.aiohttp, f"http://xkcd.com/{_id}/info.0.json")
 
     async def get_latest(self):
-        async with aiohttp.ClientSession() as session:
-            return await self.fetch(session, f'http://xkcd.com/info.0.json')
+        return await self.fetch(self.bot.aiohttp, f"http://xkcd.com/info.0.json")
 
     @staticmethod
     def generate_embed(data):
         title = f'xkcd #{data.get("num")} - {data.get("title")}'
         embed = discord.Embed(title=title, url=f'https://xkcd.com/{data.get("num")}')
-        embed.set_image(url=data.get('img'))
+        embed.set_image(url=data.get("img"))
         return embed
 
     @commands.Cog.listener()
@@ -47,23 +45,25 @@ class Xkcd(commands.Cog):
             if 1 <= _id <= max_xkcd:
                 await self.xkcd(message.channel, _id)
             else:
-                await message.channel.send(f"❌ xkcd #{_id} doesn't exist. Please pick between 1-{max_xkcd}.")
+                await message.channel.send(
+                    f"❌ xkcd #{_id} doesn't exist. Please pick between 1-{max_xkcd}."
+                )
 
     async def xkcd(self, channel, number: int):
         data = await self.get_xkcd(number)
         if data is None:
-            await channel.send(f'❌ xkcd #{number} not found. Please try another one.')
+            await channel.send(f"❌ xkcd #{number} not found. Please try another one.")
             return
         embed = self.generate_embed(data)
         await channel.send(embed=embed)
 
-    @commands.command(name='latest')
+    @commands.command(name="latest")
     async def latest_xkcd(self, ctx):
         data = await self.get_latest()
         embed = self.generate_embed(data)
         await ctx.channel.send(embed=embed)
 
-    @commands.command(name='random')
+    @commands.command(name="random")
     async def random_xkcd(self, ctx):
         max_xkcd = await self.get_max_xkcd()
         _id = random.randint(1, max_xkcd)
@@ -73,7 +73,7 @@ class Xkcd(commands.Cog):
 
     async def get_max_xkcd(self):
         data = await self.get_latest()
-        return data.get('num')
+        return data.get("num")
 
 
 def setup(bot):
